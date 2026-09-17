@@ -11,7 +11,8 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="shell">
+  <section class="auth-gate" id="authGate"><div class="auth-card panel"><div class="brand"><span class="brand-mark">✦</span><span>Tiny Routines</span></div><p class="eyebrow">FAMILY ACCESS</p><h1>Welcome back</h1><p class="subtle">What is the estimated date of birth for our little one?</p><form id="accessForm"><input id="accessAnswer" type="text" inputmode="numeric" autocomplete="off" placeholder="DD / MM / YYYY" aria-label="Estimated date of birth" required><button class="primary-button full" type="submit">Open shared records</button><p class="auth-error" id="authError" hidden>That answer does not match.</p></form><p class="auth-note">Shared with your family. This is a simple access question, not a secure account password.</p></div></section>
+  <main class="shell" id="app" hidden>
     <header class="topbar">
       <div class="brand"><span class="brand-mark">✦</span><span>Tiny Routines</span></div>
       <div class="top-actions">
@@ -55,6 +56,6 @@
   <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="close-button" id="closeModal">×</button><p class="eyebrow">ADD TO TODAY</p><h2 id="modalTitle">Log something</h2><form id="entryForm"><label>What happened?<select id="entryType"><option value="feed">Feed</option><option value="sleep">Sleep</option><option value="diaper">Diaper</option><option value="note">Note</option></select></label><div id="dynamicFields"></div><label>Time<input id="entryTime" type="time" required></label><label>Optional note<textarea id="entryNote" rows="2" placeholder="Anything worth remembering?"></textarea></label><button class="primary-button full" type="submit">Save entry</button></form></section></div>
   <div class="toast" id="toast" role="status"></div>
   <nav class="mobile-bar" aria-label="Quick navigation"><button id="mobileHome"><span>⌂</span>Today</button><button id="mobileHistory"><span>◷</span>History</button><button id="mobileAdd"><b>＋</b><small>Log</small></button><button id="mobileExport"><span>↥</span>Export</button></nav>
-  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
 </body>
 </html>

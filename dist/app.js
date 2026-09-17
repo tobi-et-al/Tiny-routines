@@ -1,11 +1,19 @@
 const KEY='tiny-routines-v1';
+const SUPABASE_URL='https://xmpghizpaxffjmwgfxih.supabase.co';
+const SUPABASE_KEY='sb_publishable_FYBaxDTy_Dk34_FQHz4uMQ_WZ2KShqg';
+const SHARED_ID='family';
 let state=JSON.parse(localStorage.getItem(KEY)||'null')||{name:'little one',entries:[],activeTimer:null,nightMode:false};
 state.activeTimer=state.activeTimer||null; state.nightMode=!!state.nightMode;
+let supabaseClient=null, remoteReady=false, remoteBusy=false;
 const $=s=>document.querySelector(s);
 const today=()=>new Date().toISOString().slice(0,10);
 let selectedDate=today();
 const esc=s=>String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));render();if(remoteReady&&!remoteBusy)syncRemote()}
+async function syncRemote(){if(!supabaseClient)return;remoteBusy=true;let {error}=await supabaseClient.from('baby_shared_state').upsert({id:SHARED_ID,data:state,updated_at:new Date().toISOString()});remoteBusy=false;if(error)toast('Saved locally. Shared sync needs setup')}
+async function loadSharedState(){if(!supabaseClient)return;let {data,error}=await supabaseClient.from('baby_shared_state').select('data').eq('id',SHARED_ID).maybeSingle();if(error){toast('Shared storage needs setup');return}if(data&&data.data){state={...state,...data.data};localStorage.setItem(KEY,JSON.stringify(state))}else{await syncRemote()}remoteReady=true;render()}
+function normaliseAnswer(value){return value.replace(/\D/g,'')}
+async function startApp(){if(normaliseAnswer($('#accessAnswer').value)!=='22092026'){$('#authError').hidden=false;return}sessionStorage.setItem('tiny-routines-access','yes');$('#authGate').hidden=true;$('#app').hidden=false;await loadSharedState();render()}
 function formatDate(date=today()){let d=new Date(date+'T12:00:00');return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(d)}
 function shiftDate(amount){let d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+amount);selectedDate=d.toISOString().slice(0,10);render()}
 function formatTime(t){let [h,m]=t.split(':');let d=new Date();d.setHours(h,m);return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
@@ -42,6 +50,8 @@ function fields(type){return type==='feed'?'<label>Method<select id="fieldMethod
  const exportData=()=>download('tiny-routines.json',JSON.stringify(state,null,2),'application/json'); const exportCsv=()=>{let rows=[['Date','Time','Type','Details','Note'],...state.entries.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(e=>[e.date,e.time,label(e),meta(e),e.note||''])];download('tiny-routines.csv',rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\\n'),'text/csv')}; $('#exportTop').onclick=exportData; $('#downloadJson').onclick=exportData; $('#downloadCsv').onclick=exportCsv; $('#copyData').onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(state,null,2));toast('Data copied to clipboard')}catch{toast('Copy unavailable in this browser')}}; $('#copyHandover').onclick=async()=>{try{await navigator.clipboard.writeText(handoverText());toast('Handover copied')}catch{toast('Copy unavailable in this browser')}}; $('#printReport').onclick=()=>window.print(); $('#nightModeButton').onclick=()=>{state.nightMode=!state.nightMode;save()};
  $('#prevDay').onclick=()=>shiftDate(-1); $('#nextDay').onclick=()=>shiftDate(1); $('#jumpToday').onclick=()=>{selectedDate=today();render()}; $('#restoreData').onclick=()=>$('#restoreInput').click(); $('#restoreInput').onchange=e=>{let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=()=>{try{let restored=JSON.parse(reader.result);if(!restored||!Array.isArray(restored.entries))throw new Error();state={name:restored.name||'little one',entries:restored.entries};save();toast('Backup restored')}catch{toast('That backup could not be read')}};reader.readAsText(file)};
  $('#mobileHome').onclick=()=>{selectedDate=today();render();window.scrollTo({top:0,behavior:'smooth'})}; $('#mobileHistory').onclick=()=>{selectedDate=new Date(Date.now()-86400000).toISOString().slice(0,10);render();window.scrollTo({top:0,behavior:'smooth'})}; $('#mobileAdd').onclick=()=>openModal(); $('#mobileExport').onclick=exportData;
+ $('#accessForm').onsubmit=e=>{e.preventDefault();startApp()};
+ supabaseClient=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);if(sessionStorage.getItem('tiny-routines-access')==='yes'){$('#authGate').hidden=true;$('#app').hidden=false;loadSharedState()};document.addEventListener('visibilitychange',()=>{if(!document.hidden&&remoteReady)loadSharedState()});
 function download(name,data,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href);toast('Download ready')}
 function toast(t){let x=$('#toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
-render();
+setInterval(()=>{if(state.activeTimer)render()},30000);

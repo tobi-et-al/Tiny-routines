@@ -24,15 +24,15 @@
       <div>
         <p class="eyebrow">YOUR LITTLE ONE'S DAY</p>
         <h1>Good morning, <span id="displayName">little one</span> <span class="sun">☀</span></h1>
-        <p class="subtle" id="todayLabel"></p>
+        <div class="date-nav"><button class="date-arrow" id="prevDay" aria-label="Previous day">‹</button><p class="subtle" id="todayLabel"></p><button class="date-arrow" id="nextDay" aria-label="Next day">›</button><button class="today-button" id="jumpToday">Today</button></div>
       </div>
       <button class="primary-button" id="addEntryButton"><span>＋</span> Log something</button>
     </section>
 
     <section class="overview-grid" aria-label="Today overview">
-      <article class="overview-card peach"><div class="card-title"><span class="card-icon">◔</span> Feeds</div><strong id="feedsCount">0</strong><span class="unit">today</span><div class="sparkline" id="feedSpark"></div></article>
-      <article class="overview-card lavender"><div class="card-title"><span class="card-icon">☾</span> Sleep</div><strong id="sleepTotal">0h 0m</strong><span class="unit">total today</span><div class="sleep-bar"><span id="sleepBarFill"></span></div></article>
-      <article class="overview-card mint"><div class="card-title"><span class="card-icon">♧</span> Diapers</div><strong id="diaperCount">0</strong><span class="unit">today</span><div class="diaper-breakdown"><span id="wetCount">0 wet</span><span id="dirtyCount">0 dirty</span></div></article>
+      <article class="overview-card peach"><div class="card-title"><span class="card-icon">◔</span> Feeds</div><strong id="feedsCount">0</strong><span class="unit">selected day</span><div class="sparkline" id="feedSpark"></div></article>
+      <article class="overview-card lavender"><div class="card-title"><span class="card-icon">☾</span> Sleep</div><strong id="sleepTotal">0h 0m</strong><span class="unit">selected day</span><div class="sleep-bar"><span id="sleepBarFill"></span></div></article>
+      <article class="overview-card mint"><div class="card-title"><span class="card-icon">♧</span> Diapers</div><strong id="diaperCount">0</strong><span class="unit">selected day</span><div class="diaper-breakdown"><span id="wetCount">0 wet</span><span id="dirtyCount">0 dirty</span></div></article>
     </section>
 
     <section class="content-grid">
@@ -43,7 +43,8 @@
       <aside class="side-column">
         <div class="tip-card panel"><div class="tip-spark">✺</div><p class="eyebrow">A GENTLE REMINDER</p><h3>Small moments<br>make up the day.</h3><p class="subtle">You are doing beautifully. There is no perfect routine.</p></div>
         <div class="quick-card panel"><div class="section-heading"><div><p class="eyebrow">QUICK LOG</p><h2>One tap away</h2></div></div><div class="quick-grid"><button data-quick="feed"><span>◔</span>Feed</button><button data-quick="sleep"><span>☾</span>Sleep</button><button data-quick="diaper"><span>♧</span>Diaper</button><button data-quick="note"><span>✎</span>Note</button></div></div>
-        <div class="data-card panel"><div class="section-heading"><div><p class="eyebrow">YOUR DATA</p><h2>Take it with you</h2></div><span class="lock">⌁</span></div><p class="subtle">Everything stays on this device unless you choose to export it.</p><div class="data-actions"><button id="copyData" class="secondary-button">Copy data</button><button id="downloadJson" class="secondary-button">Download JSON</button></div></div>
+        <div class="patterns-card panel"><div class="section-heading"><div><p class="eyebrow">LAST 7 DAYS</p><h2>Little patterns</h2></div></div><div id="patterns" class="patterns"></div></div>
+        <div class="data-card panel"><div class="section-heading"><div><p class="eyebrow">YOUR DATA</p><h2>Take it with you</h2></div><span class="lock">⌁</span></div><p class="subtle">Everything stays on this device unless you choose to export it.</p><div class="data-actions"><button id="copyData" class="secondary-button">Copy data</button><button id="downloadJson" class="secondary-button">Download JSON</button><button id="downloadCsv" class="secondary-button">Download CSV</button><button id="restoreData" class="secondary-button">Restore backup</button><input id="restoreInput" type="file" accept="application/json" hidden></div></div>
       </aside>
     </section>
   </main>

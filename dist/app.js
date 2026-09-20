@@ -13,7 +13,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(state));render();if(remo
 async function syncRemote(){if(!supabaseClient)return;remoteBusy=true;let {error}=await supabaseClient.from('baby_shared_state').upsert({id:SHARED_ID,data:state,updated_at:new Date().toISOString()});remoteBusy=false;if(error)toast('Saved locally. Shared sync needs setup')}
 async function loadSharedState(){if(!supabaseClient)return;let {data,error}=await supabaseClient.from('baby_shared_state').select('data').eq('id',SHARED_ID).maybeSingle();if(error){toast('Shared storage needs setup');return}if(data&&data.data){state={...state,...data.data};localStorage.setItem(KEY,JSON.stringify(state))}else{await syncRemote()}remoteReady=true;render()}
 function normaliseAnswer(value){return value.replace(/\D/g,'')}
-async function startApp(){if(normaliseAnswer($('#accessAnswer').value)!=='22092026'){$('#authError').hidden=false;return}sessionStorage.setItem('tiny-routines-access','yes');$('#authGate').hidden=true;$('#app').hidden=false;await loadSharedState();render()}
+async function startApp(){if(normaliseAnswer($('#accessAnswer').value)!=='19092026'){$('#authError').hidden=false;return}sessionStorage.setItem('tiny-routines-access','yes');$('#authGate').hidden=true;$('#app').hidden=false;await loadSharedState();render()}
 function formatDate(date=today()){let d=new Date(date+'T12:00:00');return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(d)}
 function shiftDate(amount){let d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+amount);selectedDate=d.toISOString().slice(0,10);render()}
 function formatTime(t){let [h,m]=t.split(':');let d=new Date();d.setHours(h,m);return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#fffaf5" />
+  <title>Tiny Routines</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <section class="auth-gate" id="authGate"><div class="auth-card panel"><div class="brand"><span class="brand-mark">✦</span><span>Tiny Routines</span></div><p class="eyebrow">FAMILY ACCESS</p><h1>Welcome back</h1><p class="subtle">What is the estimated date of birth for our little one?</p><form id="accessForm"><input id="accessAnswer" type="text" inputmode="numeric" autocomplete="off" placeholder="__ / __ / ____" maxlength="14" aria-label="Estimated date of birth" required><button class="primary-button full" type="submit">Open shared records</button><p class="auth-error" id="authError" hidden>That answer does not match.</p></form><p class="auth-note">Shared with your family. This is a simple access question, not a secure account password.</p></div></section>
+  <main class="shell" id="app" hidden>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">✦</span><span>Tiny Routines</span></div>
+      <div class="top-actions">
+        <button class="icon-button" id="nightModeButton" title="Night mode" aria-label="Toggle night mode">☾</button>
+        <button class="icon-button" id="exportTop" title="Export data" aria-label="Export data">↥</button>
+        <button class="avatar" id="babyNameButton" title="Set baby name">L</button>
+      </div>
+    </header>
+
+    <section class="welcome">
+      <div>
+        <p class="eyebrow">YOUR LITTLE ONE'S DAY</p>
+        <h1>Good morning, <span id="displayName">little one</span> <span class="sun">☀</span></h1>
+        <div class="date-nav"><button class="date-arrow" id="prevDay" aria-label="Previous day">‹</button><p class="subtle" id="todayLabel"></p><button class="date-arrow" id="nextDay" aria-label="Next day">›</button><button class="today-button" id="jumpToday">Today</button></div>
+      </div>
+      <button class="primary-button" id="addEntryButton"><span>＋</span> Log something</button>
+    </section>
+    <div id="activeTimer" class="active-timer panel" hidden></div>
+
+    <section class="overview-grid" aria-label="Today overview">
+      <article class="overview-card peach"><div class="card-title"><span class="card-icon">◔</span> Feeds</div><strong id="feedsCount">0</strong><span class="unit">selected day</span><div class="sparkline" id="feedSpark"></div></article>
+      <article class="overview-card lavender"><div class="card-title"><span class="card-icon">☾</span> Sleep</div><strong id="sleepTotal">0h 0m</strong><span class="unit">selected day</span><div class="sleep-bar"><span id="sleepBarFill"></span></div></article>
+      <article class="overview-card mint"><div class="card-title"><span class="card-icon">♧</span> Diapers</div><strong id="diaperCount">0</strong><span class="unit">selected day</span><div class="diaper-breakdown"><span id="wetCount">0 wet</span><span id="dirtyCount">0 dirty</span></div></article>
+      <article class="overview-card rose"><div class="card-title"><span class="card-icon">◷</span> Last feed</div><strong id="lastFeedTime">—</strong><span id="lastFeedDetail" class="unit">No feed yet</span><div class="card-caption">selected day</div></article>
+      <article class="overview-card sky"><div class="card-title"><span class="card-icon">↔</span> Breast sides</div><strong id="breastSideCount">0</strong><span class="unit">breastfeeds</span><div class="diaper-breakdown"><span id="leftFeedCount">0 left</span><span id="rightFeedCount">0 right</span><span id="bothFeedCount">0 both</span></div></article>
+    </section>
+
+    <section class="content-grid">
+      <div class="timeline-panel panel">
+        <div class="section-heading"><div><p class="eyebrow">LIVE LOG</p><h2>Today's rhythm</h2></div><button class="text-button" id="clearToday">Clear today</button></div>
+        <div id="timeline" class="timeline empty-state"><div class="empty-illustration">☼</div><h3>A quiet start</h3><p>Log a feed, nap, diaper, or note to begin today's rhythm.</p></div>
+      </div>
+      <aside class="side-column">
+        <div class="tip-card panel"><div class="tip-spark">✺</div><p class="eyebrow">A GENTLE REMINDER</p><h3>Small moments<br>make up the day.</h3><p class="subtle">You are doing beautifully. There is no perfect routine.</p></div>
+        <div class="quick-card panel"><div class="section-heading"><div><p class="eyebrow">QUICK LOG</p><h2>One tap away</h2></div></div><div class="quick-grid"><button data-quick="feed"><span>◔</span>Feed</button><button data-quick="sleep"><span>☾</span>Sleep</button><button data-quick="diaper"><span>♧</span>Diaper</button><button data-quick="note"><span>✎</span>Note</button></div></div>
+        <div class="patterns-card panel"><div class="section-heading"><div><p class="eyebrow">LAST 7 DAYS</p><h2>Little patterns</h2></div></div><div id="patterns" class="patterns"></div></div>
+        <div class="handover-card panel"><div class="section-heading"><div><p class="eyebrow">CAREGIVER HANDOVER</p><h2>What happened last</h2></div></div><div id="handoverSummary" class="handover-summary"></div><button id="copyHandover" class="secondary-button">Copy handover</button></div>
+        <div class="data-card panel"><div class="section-heading"><div><p class="eyebrow">YOUR DATA</p><h2>Take it with you</h2></div><span class="lock">⌁</span></div><p class="subtle">Everything stays on this device unless you choose to export it.</p><div class="data-actions"><button id="copyData" class="secondary-button">Copy data</button><button id="downloadJson" class="secondary-button">Download JSON</button><button id="downloadCsv" class="secondary-button">Download CSV</button><button id="restoreData" class="secondary-button">Restore backup</button><button id="printReport" class="secondary-button">Print summary</button><input id="restoreInput" type="file" accept="application/json" hidden></div></div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="close-button" id="closeModal">×</button><p class="eyebrow">ADD TO TODAY</p><h2 id="modalTitle">Log something</h2><form id="entryForm"><label>What happened?<select id="entryType"><option value="feed">Feed</option><option value="sleep">Sleep</option><option value="diaper">Diaper</option><option value="note">Note</option></select></label><div id="dynamicFields"></div><label>Time<input id="entryTime" type="time" required></label><label>Optional note<div class="voice-note-wrap"><textarea id="entryNote" rows="2" placeholder="Say details like bottle 4 ounces, sleep 45 minutes, or wet diaper"></textarea><button id="voiceNoteButton" class="voice-button" type="button" aria-label="Fill form from microphone" title="Fill form from microphone">●</button></div></label><button class="primary-button full" type="submit">Save entry</button></form></section></div>
+  <div class="toast" id="toast" role="status"></div>
+  <nav class="mobile-bar" aria-label="Quick navigation"><button id="mobileHome"><span>⌂</span>Today</button><button id="mobileHistory"><span>◷</span>History</button><button id="mobileAdd"><b>＋</b><small>Log</small></button><button id="mobileExport"><span>↥</span>Export</button></nav>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
+</body>
+</html>

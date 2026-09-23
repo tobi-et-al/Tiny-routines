@@ -12,6 +12,8 @@
 .timer-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
 .active-timer .primary-button,.active-timer .secondary-button{padding:10px 12px;white-space:nowrap}
 .active-timer .text-button{font-size:11px;padding:6px}
+.merge-entry{border:0;background:#f4f0ff;color:#7163a1;border-radius:7px;padding:5px 8px;font:600 11px 'DM Sans';cursor:pointer}
+ .night-mode .merge-entry{background:#39354f;color:#d9d0ff}
 @media(max-width:600px){.active-timer{display:block;padding:18px 17px}.active-timer .timer-elapsed{font-size:36px}.timer-actions{justify-content:stretch;margin-top:14px}.timer-actions button{flex:1;min-height:46px}.timer-actions .text-button{flex:0 0 auto}}
 .sync-status{font-size:11px;color:var(--muted);white-space:nowrap}
 .sync-status.syncing{color:#b67835}

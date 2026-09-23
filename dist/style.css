@@ -8,6 +8,8 @@
 .sync-status.syncing{color:#b67835}
 .sync-status.synced{color:#4f8a69}
 .sync-status.offline{color:#b95f4d}
+.daily-summary{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 23px;margin-top:18px}.daily-summary h2{font-size:22px}.summary-metrics{display:flex;gap:22px;text-align:center}.summary-metrics strong{display:block;font:700 22px Fraunces}.summary-metrics span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.trend-summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}.trend-summary span{padding:6px 8px;border-radius:8px;background:#f8eee8;color:#776b66;font-size:11px}.night-mode .trend-summary span{background:#413337;color:#e9c0b5}
+@media(max-width:600px){.daily-summary{display:block;padding:18px 17px}.summary-metrics{justify-content:space-between;gap:8px;margin-top:16px}.summary-metrics strong{font-size:19px}}
 @media(max-width:600px){.sync-status{max-width:92px;overflow:hidden;text-overflow:ellipsis}.top-actions{gap:6px}}
  .rose{background:#fff3ed}.sky{background:#eef5ff}.card-caption{color:var(--muted);font-size:12px;margin-top:10px}.night-mode .rose{background:#3b2b2b}.night-mode .sky{background:#28374a}
  @media(max-width:600px){.topbar{background:rgba(255,253,250,.94)!important}}

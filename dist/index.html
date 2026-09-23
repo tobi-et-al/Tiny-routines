@@ -35,6 +35,8 @@
       </div>
       <button class="primary-button" id="addEntryButton"><span>＋</span> Log something</button>
     </section>
+
+    <section class="daily-summary panel" aria-label="Daily summary"><div><p class="eyebrow">DAILY SUMMARY</p><h2 id="summaryDate">Today at a glance</h2></div><div class="summary-metrics"><div><strong id="summaryFeeds">0</strong><span>feeds</span></div><div><strong id="summarySleep">0h 0m</strong><span>sleep</span></div><div><strong id="summaryDiapers">0</strong><span>diapers</span></div><div><strong id="summaryPumping">0</strong><span>pumped</span></div></div></section>
     <div id="activeTimer" class="active-timer panel" hidden></div>
 
     <section class="overview-grid" aria-label="Today overview">
@@ -53,7 +55,7 @@
       <aside class="side-column">
         <div class="tip-card panel"><div class="tip-spark">✺</div><p class="eyebrow">A GENTLE REMINDER</p><h3>Small moments<br>make up the day.</h3><p class="subtle">You are doing beautifully. There is no perfect routine.</p></div>
         <div class="quick-card panel"><div class="section-heading"><div><p class="eyebrow">QUICK LOG</p><h2>One tap away</h2></div></div><div class="quick-grid"><button data-quick="feed"><span>◔</span>Feed</button><button data-quick="sleep"><span>☾</span>Sleep</button><button data-quick="diaper"><span>♧</span>Diaper</button><button data-quick="note"><span>✎</span>Note</button></div></div>
-        <div class="patterns-card panel"><div class="section-heading"><div><p class="eyebrow">LAST 7 DAYS</p><h2>Little patterns</h2></div></div><div id="patterns" class="patterns"></div></div>
+        <div class="patterns-card panel"><div class="section-heading"><div><p class="eyebrow">LAST 7 DAYS</p><h2>Little patterns</h2></div></div><div id="patterns" class="patterns"></div><div id="trendSummary" class="trend-summary"></div></div>
         <div class="handover-card panel"><div class="section-heading"><div><p class="eyebrow">CAREGIVER HANDOVER</p><h2>What happened last</h2></div></div><div id="handoverSummary" class="handover-summary"></div><div class="data-actions"><button id="shareHandover" class="secondary-button">Share handover</button><button id="copyHandover" class="secondary-button">Copy handover</button></div></div>
         <div class="data-card panel"><div class="section-heading"><div><p class="eyebrow">YOUR DATA</p><h2>Take it with you</h2></div><span class="lock">⌁</span></div><p class="subtle">Shared records are kept in Supabase, with a local copy for offline use.</p><div class="data-actions"><button id="babyProfile" class="secondary-button">Baby profile</button><button id="enableReminders" class="secondary-button">Enable reminders</button><button id="copyData" class="secondary-button">Copy data</button><button id="downloadJson" class="secondary-button">Download JSON</button><button id="downloadCsv" class="secondary-button">Download CSV</button><button id="restoreData" class="secondary-button">Restore backup</button><button id="printReport" class="secondary-button">Print summary</button><input id="restoreInput" type="file" accept="application/json" hidden></div></div>
       </aside>

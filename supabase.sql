@@ -1,7 +1,7 @@
 -- Run this once in the Supabase SQL editor.
 create table if not exists public.baby_shared_state (
   id text primary key,
-  data jsonb not null default '{"name":"little one","entries":[],"activeTimer":null,"nightMode":false,"deletedEntries":{},"profile":{},"reminders":{"enabled":false,"intervalHours":3},"feedingPlan":{"enabled":true,"dayOfLife":4,"topUpMl":30},"planSessions":[],"deletedPlanSessions":{}}'::jsonb,
+  data jsonb not null default '{"name":"little one","entries":[],"activeTimer":null,"nightMode":false,"deletedEntries":{},"profile":{},"feedingPlan":{"enabled":true,"dayOfLife":4,"topUpMl":30},"planSessions":[],"deletedPlanSessions":{}}'::jsonb,
   updated_at timestamptz not null default now()
 );
 

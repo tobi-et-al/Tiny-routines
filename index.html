@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#fffaf5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -32,7 +32,7 @@
     <section class="welcome">
       <div>
         <p class="eyebrow">YOUR LITTLE ONE'S DAY</p>
-        <h1>Good morning, <span id="displayName">little one</span> <span class="sun">☀</span></h1>
+        <h1><span id="greetingText">Good morning</span>, <span id="displayName">little one</span> <span class="sun" id="greetingIcon" aria-hidden="true">☀</span></h1>
         <div class="date-nav"><button class="date-arrow" id="prevDay" aria-label="Previous day">‹</button><p class="subtle" id="todayLabel"></p><button class="date-arrow" id="nextDay" aria-label="Next day">›</button><button class="today-button" id="jumpToday">Today</button></div>
       </div>
       <button class="primary-button" id="addEntryButton"><span>＋</span> Log something</button>
@@ -45,7 +45,7 @@
     <div id="activeTimer" class="active-timer panel" hidden></div>
 
     <section class="overview-grid" aria-label="Today overview">
-      <article class="overview-card peach"><div class="card-title"><span class="card-icon">◔</span> Feeds</div><strong id="feedsCount">0</strong><span class="unit">selected day</span><div class="sparkline" id="feedSpark"></div></article>
+      <article class="overview-card peach"><div class="card-title"><span class="card-icon">◔</span> Feeds</div><strong id="feedsCount">0</strong><span class="unit">selected day</span></article>
       <article class="overview-card lavender"><div class="card-title"><span class="card-icon">☾</span> Sleep</div><strong id="sleepTotal">0h 0m</strong><span class="unit">selected day</span><div class="sleep-bar"><span id="sleepBarFill"></span></div></article>
       <article class="overview-card mint"><div class="card-title"><span class="card-icon">♧</span> Diapers</div><strong id="diaperCount">0</strong><span class="unit">selected day</span><div class="diaper-breakdown"><span id="wetCount">0 wet</span><span id="dirtyCount">0 dirty</span></div></article>
       <article class="overview-card rose"><div class="card-title"><span class="card-icon">◷</span> Last feed</div><strong id="lastFeedTime">—</strong><span id="lastFeedDetail" class="unit">No feed yet</span><div class="card-caption">selected day</div></article>

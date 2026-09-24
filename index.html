@@ -12,7 +12,7 @@
   <title>Tiny Routines</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Fraunces:opsz,wght@9..144,600;9..144,700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -26,6 +26,9 @@
       </div>
     </header>
 
+    <nav class="view-switcher" aria-label="Tracker view"><button class="active" type="button" data-view="today" aria-pressed="true">Today</button><button type="button" data-view="analysis" aria-pressed="false">Analysis</button></nav>
+
+    <div id="todayView">
     <section class="welcome">
       <div>
         <p class="eyebrow">YOUR LITTLE ONE'S DAY</p>
@@ -38,7 +41,7 @@
     <section class="quick-log-strip" aria-label="Quick log"><p class="eyebrow">QUICK LOG</p><div class="quick-log-actions"><button data-quick="feed"><span>◔</span>Feed</button><button data-quick="sleep"><span>☾</span>Sleep</button><button data-quick="diaper"><span>♧</span>Diaper</button><button data-quick="feed" data-method="Pumping"><span>↗</span>Pump</button></div></section>
 
     <section class="daily-summary panel" aria-label="Daily summary"><div><p class="eyebrow">DAILY SUMMARY</p><h2 id="summaryDate">Today at a glance</h2></div><div class="summary-metrics"><div><strong id="summaryFeeds">0</strong><span>feeds</span></div><div><strong id="summarySleep">0h 0m</strong><span>sleep</span></div><div><strong id="summaryDiapers">0</strong><span>diapers</span></div><div><strong id="summaryPumping">0</strong><span>pumped</span></div></div></section>
-    <section id="feedingPlanCard" class="feeding-plan panel" aria-label="Feeding plan"><div id="feedingPlanContent"></div></section>
+    <section id="feedingPlanCard" class="feeding-plan panel" aria-label="Feed cycles"><div id="feedingPlanContent"></div></section>
     <div id="activeTimer" class="active-timer panel" hidden></div>
 
     <section class="overview-grid" aria-label="Today overview">
@@ -47,7 +50,7 @@
       <article class="overview-card mint"><div class="card-title"><span class="card-icon">♧</span> Diapers</div><strong id="diaperCount">0</strong><span class="unit">selected day</span><div class="diaper-breakdown"><span id="wetCount">0 wet</span><span id="dirtyCount">0 dirty</span></div></article>
       <article class="overview-card rose"><div class="card-title"><span class="card-icon">◷</span> Last feed</div><strong id="lastFeedTime">—</strong><span id="lastFeedDetail" class="unit">No feed yet</span><div class="card-caption">selected day</div></article>
       <article class="overview-card sky"><div class="card-title"><span class="card-icon">↔</span> Breast sides</div><strong id="breastSideCount">0</strong><span class="unit">breastfeeds</span><div class="diaper-breakdown"><span id="leftFeedCount">0 left</span><span id="rightFeedCount">0 right</span><span id="bothFeedCount">0 both</span></div></article>
-      <article class="overview-card volume-card"><div class="card-title"><span class="card-icon">◒</span> Milk by hour</div><strong id="milkVolumeTotal">—</strong><span class="unit">measured ml</span><div class="volume-chart" id="milkVolumeChart" aria-label="Measured milk volume by four-hour block"></div></article>
+      <article class="overview-card volume-card"><div class="card-title"><span class="card-icon">◒</span> Milk by hour</div><strong id="milkVolumeTotal">—</strong><span class="unit">measured today</span><div class="hourly-volume-list" id="milkVolumeChart" aria-label="Measured milk volume for each hour"></div><div class="hourly-volume-summary" id="milkVolumeSummary">Add an amount to a feed to see it here</div></article>
       <article class="overview-card day-night-card"><div class="card-title"><span class="card-icon">☼☾</span> Day vs night</div><strong id="dayNightSummary">—</strong><span class="unit">day / night ml</span><div class="day-night-chart" aria-label="Measured milk volume during day and night"><div><span class="day-night-label">Day</span><i id="dayMilkBar"></i><small id="dayMilkDetail">—</small></div><div><span class="day-night-label">Night</span><i id="nightMilkBar"></i><small id="nightMilkDetail">—</small></div></div></article>
       <article class="overview-card active-card"><div class="card-title"><span class="card-icon">☼</span> Active time</div><strong id="activeTimeTotal">—</strong><span id="activeTimeDetail" class="unit">estimated from sleep</span><div class="active-time-bar"><span id="activeTimeBarFill"></span></div></article>
     </section>
@@ -65,12 +68,26 @@
         <div class="data-card panel"><div class="section-heading"><div><p class="eyebrow">YOUR DATA</p><h2>Take it with you</h2></div><span class="lock">⌁</span></div><p class="subtle">Shared records are kept in Supabase, with a local copy for offline use.</p><div class="data-actions"><button id="babyProfile" class="secondary-button">Baby profile</button><button id="copyData" class="secondary-button">Copy data</button><button id="downloadJson" class="secondary-button">Download JSON</button><button id="downloadCsv" class="secondary-button">Download CSV</button><button id="restoreData" class="secondary-button">Restore backup</button><button id="printReport" class="secondary-button">Print summary</button><input id="restoreInput" type="file" accept="application/json" hidden></div></div>
       </aside>
     </section>
+    </div>
+
+    <section id="analysisView" class="analysis-view" hidden>
+      <header class="analysis-header"><div><p class="eyebrow">STATISTICS &amp; ANALYSIS</p><h1>Patterns over time</h1><p class="subtle" id="analysisPeriodLabel">Last 7 days</p></div><div class="range-switcher" role="group" aria-label="Analysis period"><button class="active" type="button" data-analysis-range="7">7 days</button><button type="button" data-analysis-range="14">14 days</button><button type="button" data-analysis-range="30">30 days</button></div></header>
+      <div id="analysisKpis" class="analysis-kpis"></div>
+      <div class="analysis-grid">
+        <section class="analysis-panel analysis-trends"><div class="analysis-panel-heading"><div><p class="eyebrow">DAILY TREND</p><h2>Feeds, sleep and nappies</h2></div></div><div id="analysisTrendChart" class="analysis-trend-chart"></div></section>
+        <section class="analysis-panel"><div class="analysis-panel-heading"><div><p class="eyebrow">24-HOUR RHYTHM</p><h2>When feeds happen</h2></div></div><div id="analysisRhythm" class="analysis-rhythm"></div></section>
+        <section class="analysis-panel"><div class="analysis-panel-heading"><div><p class="eyebrow">MEASURED MILK</p><h2>Milk mix</h2></div></div><div id="analysisMilkMix" class="analysis-milk-mix"></div></section>
+        <section class="analysis-panel"><div class="analysis-panel-heading"><div><p class="eyebrow">FEED NOTES</p><h2>Common observations</h2></div></div><div id="analysisObservations" class="analysis-observations"></div></section>
+      </div>
+      <section class="analysis-panel analysis-table-panel"><div class="analysis-panel-heading"><div><p class="eyebrow">DAY BY DAY</p><h2>Daily detail</h2></div></div><div class="analysis-table-wrap"><table class="analysis-table"><thead><tr><th>Date</th><th>Feeds</th><th>Measured</th><th>Sleep</th><th>Wet</th><th>Dirty</th></tr></thead><tbody id="analysisTableBody"></tbody></table></div></section>
+      <p class="analysis-note">Logged patterns only. For feeding, hydration, sleep or growth concerns, contact your midwife, health visitor or clinician.</p>
+    </section>
   </main>
 
   <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="close-button" id="closeModal">×</button><p class="eyebrow">ADD TO TODAY</p><h2 id="modalTitle">Log something</h2><form id="entryForm"><div class="log-type-tabs" role="tablist" aria-label="Log type"><button type="button" data-log-type="feed" class="active">Feed</button><button type="button" data-log-type="sleep">Sleep</button><button type="button" data-log-type="diaper">Diaper</button><button type="button" data-log-type="medication">Health</button><button type="button" data-log-type="note">Note</button></div><label class="type-select-label">What happened?<select id="entryType"><option value="feed">Feed</option><option value="sleep">Sleep</option><option value="diaper">Diaper</option><option value="medication">Medication</option><option value="temperature">Temperature</option><option value="note">Note</option></select></label><div id="dynamicFields"></div><label>Time<input id="entryTime" type="time" required></label><label>Optional note<div class="voice-note-wrap"><textarea id="entryNote" rows="2" placeholder="Say details like bottle 4 ounces, sleep 45 minutes, or wet diaper"></textarea><button id="voiceNoteButton" class="voice-button" type="button" aria-label="Fill form from microphone" title="Fill form from microphone">●</button></div></label><button class="primary-button full" type="submit">Save entry</button></form></section></div>
-  <div class="modal-backdrop" id="planModalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="planModalTitle"><button class="close-button" id="closePlanModal">×</button><p class="eyebrow">FEEDING PLAN</p><h2 id="planModalTitle">Complete a feed cycle</h2><p class="subtle plan-instructions">Breast first, then offer up to 30 ml total top-up. Pump after the feed if you can.</p><form id="planForm"><div class="plan-form-grid"><label>Start side<select id="planStartSide"><option>Left</option><option>Right</option></select></label><label>Time<input id="planTime" type="time" required></label></div><div class="plan-form-grid"><label>First breast (minutes)<input id="planSideOneMinutes" type="number" min="0" placeholder="15"></label><label>Second breast (minutes)<input id="planSideTwoMinutes" type="number" min="0" placeholder="5"></label></div><div class="plan-form-grid"><label>Expressed milk top-up (ml)<input id="planBreastMilk" type="number" min="0" step="1" placeholder="0"></label><label>Formula top-up (ml)<input id="planFormula" type="number" min="0" step="1" placeholder="0"></label></div><p id="planTopupStatus" class="plan-topup-status">0 / 30 ml top-up recorded</p><label>Pumped after feed (ml)<input id="planPumped" type="number" min="0" step="1" placeholder="Optional"></label><div class="plan-checks"><label><input id="planWet" type="checkbox"> Wet nappy</label><label><input id="planDirty" type="checkbox"> Dirty nappy</label></div><label>Notes<textarea id="planNote" rows="2" placeholder="Anything useful for the next feed"></textarea></label><button class="primary-button full" type="submit">Save feed cycle</button></form></section></div>
+  <div class="modal-backdrop" id="planModalBackdrop" hidden><section class="modal cycle-modal" role="dialog" aria-modal="true" aria-labelledby="planModalTitle"><button class="close-button" id="closePlanModal">×</button><p class="eyebrow">FEED CYCLE</p><h2 id="planModalTitle">Create a cycle from logs</h2><p class="subtle plan-instructions">Choose the time range. Feeds, pumping and nappies already logged in that window are included automatically.</p><form id="planForm"><div class="plan-form-grid"><label>Start time<input id="planStartTime" type="time" required></label><label>End time<input id="planEndTime" type="time" required></label></div><div id="planCyclePreview" class="cycle-preview" aria-live="polite"></div><button class="primary-button full" type="submit">Save feed cycle</button></form></section></div>
   <div class="toast" id="toast" role="status"></div>
-  <nav class="mobile-bar" aria-label="Quick navigation"><button id="mobileHome"><span>⌂</span>Today</button><button id="mobileHistory"><span>◷</span>History</button><button id="mobileAdd"><b>＋</b><small>Log</small></button><button id="mobileExport"><span>↥</span>Export</button></nav>
+  <nav class="mobile-bar" aria-label="Quick navigation"><button id="mobileHome"><span>⌂</span>Today</button><button id="mobileHistory"><span>⌁</span>Analysis</button><button id="mobileAdd"><b>＋</b><small>Log</small></button><button id="mobileExport"><span>↥</span>Export</button></nav>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
 </body>
 </html>

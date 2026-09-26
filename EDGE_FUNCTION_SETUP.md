@@ -33,6 +33,23 @@ Other compatible choices:
 
 Use one provider at a time. Keep its key only in Supabase secrets, and run a synthetic test before enabling it in the app.
 
+### Optional trusted-source search
+
+Add this secret to check current sources before each generated summary:
+
+```text
+TAVILY_API_KEY=your-tavily-api-key
+```
+
+The function makes one basic Tavily search per generated summary. Tavily currently includes 1,000 free credits per month without a card; basic search uses one credit and pay-as-you-go is currently $0.008 per credit. If the key is missing, the allowance is exhausted or search fails, the app clearly falls back to its reviewed source library.
+
+Search is deliberately constrained:
+
+- Only `nhs.uk`, `homerton.nhs.uk` and `evidencebasedbirth.com` results are requested and accepted.
+- Tavily receives one fixed generic newborn/postnatal guidance query. No family counts, categories, dates, names, notes or medication details are included.
+- Returned snippets are treated as untrusted reference text. Instructions inside them are ignored.
+- Every accepted AI finding must cite a server-validated source ID and URL.
+
 Deploy `evidence-insights` with JWT verification disabled, as set in `supabase/config.toml`. The function still restricts browser origins, caps payload size, applies a best-effort per-instance request limit and validates both input and model output. Because family authentication was intentionally skipped, provider-side spend limits and rate limits are required before enabling a paid model.
 
 ## Safety boundary

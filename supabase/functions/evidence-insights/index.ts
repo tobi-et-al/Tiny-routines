@@ -33,9 +33,9 @@ const SOURCES = {
 
 const SOURCE_IDS = new Set(Object.keys(SOURCES));
 const OBSERVATION_CODES = new Set([
-  "fellAsleep", "latchedWell", "neededLatchHelp", "calm", "burpedWell", "spitUp", "stillHungry",
-  "eyesOpen", "wokeUp", "cried", "alert", "sleepy", "fussy", "hungerCues", "hiccups", "sneezed", "skinToSkin",
-  "mumCalm", "mumContent", "mumTired", "mumWorried", "mumOverwhelmed", "mumTearful", "mumLow", "mumIrritable", "mumSupported", "mumNeedsSupport",
+  "fellAsleep", "latchedWell", "neededLatchHelp", "feedAttempt", "rhythmicSucking", "tooSleepyToFeed", "cameOffBreast", "distressedDuringFeed", "alertDuringFeed", "calm", "burpedWell", "spitUp", "stillHungry",
+  "eyesOpen", "wokeUp", "cried", "alert", "sleepy", "fussy", "hungerCues", "hiccups", "sneezed", "skinToSkin", "rashNoticed", "weightCheck", "glucoseCheck",
+  "mumCalm", "mumContent", "mumTired", "mumWorried", "mumOverwhelmed", "mumTearful", "mumLow", "mumIrritable", "mumSupported", "mumNeedsSupport", "mumMedicationTaken",
 ]);
 const ALLOWED_ORIGINS = new Set([
   "https://tiny-routines.skyscanner-5277.chatgpt.site",

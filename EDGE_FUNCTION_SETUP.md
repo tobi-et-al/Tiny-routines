@@ -14,6 +14,25 @@ AI_MODEL=your-open-weight-model-id
 
 `AI_API_URL` must be an OpenAI-compatible chat-completions endpoint. The key remains in the Edge Function environment and is never sent to the browser.
 
+### Free provider options
+
+Groq is the simplest direct replacement and is recommended for this app:
+
+```text
+AI_API_URL=https://api.groq.com/openai/v1/chat/completions
+AI_MODEL=openai/gpt-oss-20b
+AI_API_KEY=your-groq-api-key
+```
+
+Groq publishes free-plan request and token limits for its open-weight models. Limits are account-level and may change, so check the Groq console before relying on them for wider use.
+
+Other compatible choices:
+
+- Cloudflare Workers AI includes a daily free allocation and an OpenAI-compatible endpoint. Its URL must include the Cloudflare account ID, for example `https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/ai/v1/chat/completions`.
+- OpenRouter offers free model routes through `https://openrouter.ai/api/v1/chat/completions`, but the no-credit tier is limited to 50 requests per day and free-model availability can change.
+
+Use one provider at a time. Keep its key only in Supabase secrets, and run a synthetic test before enabling it in the app.
+
 Deploy `evidence-insights` with JWT verification disabled, as set in `supabase/config.toml`. The function still restricts browser origins, caps payload size, applies a best-effort per-instance request limit and validates both input and model output. Because family authentication was intentionally skipped, provider-side spend limits and rate limits are required before enabling a paid model.
 
 ## Safety boundary

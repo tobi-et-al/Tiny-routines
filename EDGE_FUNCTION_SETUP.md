@@ -45,16 +45,18 @@ The function makes one basic Tavily search per generated summary. Tavily current
 
 Search is deliberately constrained:
 
-- Only `nhs.uk`, `homerton.nhs.uk` and `evidencebasedbirth.com` results are requested and accepted.
+- Only NHS, Homerton, NICE, UNICEF UK, RCPCH, WHO, Lullaby Trust and Evidence Based Birth domains are requested and accepted.
 - Tavily receives one fixed generic newborn/postnatal guidance query. No family counts, categories, dates, names, notes or medication details are included.
 - Returned snippets are treated as untrusted reference text. Instructions inside them are ignored.
 - Every accepted AI finding must cite a server-validated source ID and URL.
+- Optional parent and clinician questions are stripped locally of known names, medication names, dates, times, contact details and links. The Edge Function rejects common identifying formats that remain. The interface still tells parents not to enter identifying details.
+- Clinician-question responses are labelled evidence notes. They are never presented as clinician answers, and unsupported questions are left for the clinician rather than guessed.
 
 Deploy `evidence-insights` with JWT verification disabled, as set in `supabase/config.toml`. The function still restricts browser origins, caps payload size, applies a best-effort per-instance request limit and validates both input and model output. Because family authentication was intentionally skipped, provider-side spend limits and rate limits are required before enabling a paid model.
 
 ## Safety boundary
 
-- The browser sends only aggregate counts, durations, volumes, coded observations, an age in days and relative day offsets.
+- The browser sends only aggregate counts, durations, volumes, coded observations, period-level comparisons, an age in days, relative day offsets and optional de-identified questions.
 - Free-text notes, names, date of birth, exact dates, exact times, medication details and clinician questions are never included.
 - Urgent temperature guidance stays deterministic and on-device.
 - Unsupported or malformed model output is hidden.

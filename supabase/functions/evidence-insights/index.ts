@@ -158,8 +158,18 @@ Deno.serve(async (request: Request) => {
       body: JSON.stringify({ model, temperature: 0, max_tokens: 900, response_format: { type: "json_object" }, messages: [{ role: "system", content: system }, { role: "user", content: JSON.stringify({ aggregates: payload, evidence }) }] }),
       signal: controller.signal,
     });
-    if (!providerResponse.ok) return json(502, { code: "provider_error", message: "The model provider did not return a usable response." }, origin);
-    const providerBody = await providerResponse.json();
+    const providerText = await providerResponse.text();
+    if (!providerResponse.ok) {
+      let providerCode = "unknown";
+      try {
+        const providerError = JSON.parse(providerText);
+        providerCode = String(providerError?.error?.code || providerError?.error?.type || providerError?.code || "unknown").slice(0, 80);
+      } catch {
+        // Keep upstream response text private.
+      }
+      return json(502, { code: "provider_error", providerStatus: providerResponse.status, providerCode, message: "The model provider did not return a usable response." }, origin);
+    }
+    const providerBody = JSON.parse(providerText);
     const content = providerBody?.choices?.[0]?.message?.content ?? providerBody?.output?.[0]?.content?.[0]?.text;
     const result = validateModelResult(extractJson(content));
     if (!result) return json(502, { code: "invalid_model_output", message: "The model response was hidden because it could not be verified." }, origin);

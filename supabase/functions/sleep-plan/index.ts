@@ -203,6 +203,12 @@ Deno.serve(async (request: Request) => {
   const searched = await liveEvidence();
   const evidence = [...Object.entries(SOURCES).map(([id, source]) => ({ id, ...source })), ...searched];
   const allowedSourceIds = new Set(evidence.map((source) => source.id));
+  const fallbackResponse = () => {
+    const result = fallback(payload);
+    const limitations = Array.isArray(result.limitations) ? result.limitations : [];
+    result.limitations = [...limitations, "Live AI wording was unavailable, so this cautious rota uses the recorded pattern and reviewed guidance only."];
+    return json(200, { ...result, generation: { mode: "verified_fallback" }, retrieval: { mode: searched.length ? "live_search" : "reviewed_sources", liveSourceCount: searched.length }, sources: Object.fromEntries(evidence.map((source) => [source.id, { name: source.name, url: source.url }])) }, origin);
+  };
   const system = `Create a practical 24-hour rest and care rota for Mum, Dad and a newborn from de-identified aggregate logs and supplied evidence. This is a flexible parent handover plan, never a baby sleep-training or feeding schedule. Baby sleep and feeding remain responsive to cues and any individual clinical plan. Never advise delaying, skipping or withholding a feed or care. Never infer unlogged events. Describe quieter and busier recorded windows only, never guaranteed sleep. Protect rest for both parents. When breastfeeds predominate, Dad should handle bringing baby, changing and settling around feeds so Mum can return to sleep; never imply Dad can replace a breastfeed. Each block must say what Baby, Mum and Dad do. Include safer-sleep basics without claiming the logs prove safety. Do not diagnose or claim a pattern is normal, safe, healthy or adequate. Use only supplied source IDs and cite at least one source per block. Return only the requested JSON.`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 22_000);
@@ -211,15 +217,14 @@ Deno.serve(async (request: Request) => {
     const providerOptions = groq ? { max_completion_tokens: 4_000, reasoning_effort: "low", reasoning_format: "hidden", response_format: responseFormat() } : { max_tokens: 1_500, response_format: { type: "json_object" } };
     const response = await fetch(apiUrl, { method: "POST", headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ model, temperature: 0.1, ...providerOptions, messages: [{ role: "system", content: system }, { role: "user", content: JSON.stringify({ aggregates: payload, evidence }) }] }), signal: controller.signal });
     const providerText = await response.text();
-    if (!response.ok) return json(502, { code: "provider_error", message: "The model provider did not return a usable response." }, origin);
+    if (!response.ok) return fallbackResponse();
     const providerBody = JSON.parse(providerText);
     const content = providerBody?.choices?.[0]?.message?.content ?? providerBody?.output?.[0]?.content?.[0]?.text;
     const verified = validateResult(extractJson(content), allowedSourceIds);
     const result = verified || fallback(payload);
     return json(200, { ...result, generation: { mode: verified ? "verified_model" : "verified_fallback" }, retrieval: { mode: searched.length ? "live_search" : "reviewed_sources", liveSourceCount: searched.length }, sources: Object.fromEntries(evidence.map((source) => [source.id, { name: source.name, url: source.url }])) }, origin);
   } catch (error) {
-    const timedOut = error instanceof DOMException && error.name === "AbortError";
-    return json(502, { code: timedOut ? "provider_timeout" : "provider_error", message: timedOut ? "The model provider timed out." : "The model response could not be verified." }, origin);
+    return fallbackResponse();
   } finally {
     clearTimeout(timeout);
   }

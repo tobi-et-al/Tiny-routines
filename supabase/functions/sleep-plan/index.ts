@@ -90,15 +90,19 @@ function validTime(value: unknown): value is string {
 }
 
 function validateResult(value: unknown, allowedSourceIds: Set<string>): JsonRecord | null {
-  if (!isRecord(value) || !exactKeys(value, ["status", "summary", "basis", "schedule", "adjustments", "limitations"]) || value.status !== "ok" || typeof value.summary !== "string" || value.summary.length > 360 || typeof value.basis !== "string" || value.basis.length > 700 || !Array.isArray(value.schedule) || value.schedule.length < 4 || value.schedule.length > 8 || !Array.isArray(value.adjustments) || value.adjustments.length > 5 || !Array.isArray(value.limitations) || value.limitations.length > 5) return null;
+  if (!isRecord(value) || !exactKeys(value, ["status", "summary", "basis", "schedule", "tips", "adjustments", "limitations"]) || value.status !== "ok" || typeof value.summary !== "string" || value.summary.length > 360 || typeof value.basis !== "string" || value.basis.length > 700 || !Array.isArray(value.schedule) || value.schedule.length < 4 || value.schedule.length > 8 || !Array.isArray(value.tips) || value.tips.length < 4 || value.tips.length > 6 || !Array.isArray(value.adjustments) || value.adjustments.length > 5 || !Array.isArray(value.limitations) || value.limitations.length > 5) return null;
   const schedule = value.schedule.map((block) => {
     if (!isRecord(block) || !exactKeys(block, ["start", "end", "baby", "mum", "dad", "rationale", "sourceIds"]) || !validTime(block.start) || !validTime(block.end) || ![block.baby, block.mum, block.dad, block.rationale].every((item) => typeof item === "string" && item.length > 0 && item.length <= 300) || !Array.isArray(block.sourceIds) || !block.sourceIds.length || block.sourceIds.some((id) => typeof id !== "string" || !allowedSourceIds.has(id))) return null;
     return { start: block.start, end: block.end, baby: block.baby, mum: block.mum, dad: block.dad, rationale: block.rationale, sourceIds: [...new Set(block.sourceIds)] };
   });
-  if (schedule.some((block) => block === null) || !value.adjustments.every((item) => typeof item === "string" && item.length <= 240) || !value.limitations.every((item) => typeof item === "string" && item.length <= 240)) return null;
-  const text = [value.summary, value.basis, ...schedule.flatMap((block) => block ? [block.baby, block.mum, block.dad, block.rationale] : []), ...value.adjustments, ...value.limitations].join(" ");
+  const tips = value.tips.map((tip) => {
+    if (!isRecord(tip) || !exactKeys(tip, ["title", "guidance", "sourceIds"]) || typeof tip.title !== "string" || !tip.title.trim() || tip.title.length > 80 || typeof tip.guidance !== "string" || !tip.guidance.trim() || tip.guidance.length > 320 || !Array.isArray(tip.sourceIds) || !tip.sourceIds.length || tip.sourceIds.some((id) => typeof id !== "string" || !allowedSourceIds.has(id))) return null;
+    return { title: tip.title, guidance: tip.guidance, sourceIds: [...new Set(tip.sourceIds)] };
+  });
+  if (schedule.some((block) => block === null) || tips.some((tip) => tip === null) || !value.adjustments.every((item) => typeof item === "string" && item.length <= 240) || !value.limitations.every((item) => typeof item === "string" && item.length <= 240)) return null;
+  const text = [value.summary, value.basis, ...schedule.flatMap((block) => block ? [block.baby, block.mum, block.dad, block.rationale] : []), ...tips.flatMap((tip) => tip ? [tip.title, tip.guidance] : []), ...value.adjustments, ...value.limitations].join(" ");
   if (/\b(delay|skip|withhold)\b[^.]{0,50}\b(feed|feeding|care)\b|\blet (?:the )?baby cry\b|\bguarantee(?:d)?\b|\bsleep through\b/i.test(text)) return null;
-  return { status: "ok", summary: value.summary, basis: value.basis, schedule, adjustments: value.adjustments, limitations: value.limitations };
+  return { status: "ok", summary: value.summary, basis: value.basis, schedule, tips, adjustments: value.adjustments, limitations: value.limitations };
 }
 
 function peakHours(payload: JsonRecord): number[] {
@@ -125,6 +129,14 @@ function fallback(payload: JsonRecord): JsonRecord {
     summary: "A flexible care rota with alternating protected rest blocks.",
     basis: `${Number(payload.completeness && isRecord(payload.completeness) ? payload.completeness.loggedDays : 0)} logged day(s), ${Number(feeding.totalFeedLogs || 0)} feed logs and the recorded hourly activity pattern were considered. Baby timing remains cue-led.`,
     schedule: blocks,
+    tips: [
+      { title: "Set up each handover", guidance: "Before a protected rest block, agree who is on duty and put nappies, muslins, feeding supplies and water within reach. Keep feeds responsive to baby's cues.", sourceIds: ["nhsParentRest", "nhsResponsiveFeeding"] },
+      { title: "Keep night care low-key", guidance: "Use low lights and quiet voices, avoid play, and only change baby when needed. Put baby back in their sleep space after feeding and changing.", sourceIds: ["nhsSleep"] },
+      { title: "Protect the off-duty parent", guidance: "Around breastfeeding, Dad can handle bringing baby, nappies and settling so Mum can return to sleep. Use the rota to make the protected block explicit.", sourceIds: ["nhsParentRest"] },
+      { title: "Take the first safe rest window", guidance: "When baby sleeps and the other parent is covering care, prioritise rest over non-essential chores. Ask family or friends for practical help where available.", sourceIds: ["nhsParentRest"] },
+      { title: "Reset before fatigue becomes unsafe", guidance: "If the on-duty parent may fall asleep while holding baby, swap caregiver or place baby on their back in their own clear, flat, firm sleep space in the same room. Never sleep with baby on a sofa or chair.", sourceIds: ["lullabySleep"] },
+      { title: "Rerun when the pattern changes", guidance: "Newborn sleep varies and changes. Treat this as a handover plan, not a target for baby, and generate it again after several new logs or a disrupted day.", sourceIds: ["nhsSleep"] },
+    ],
     adjustments: ["Swap Mum and Dad blocks when either parent is too tired to provide safe care.", "Regenerate after several more logs or whenever the pattern changes.", "Follow any feeding or waking plan from the maternity or neonatal team instead of this rota."],
     limitations: ["Unlogged activity is unknown and appears as quiet time.", "This plan organises adult rest; it does not predict or prescribe baby sleep.", "The model does not know either parent's work, health or medication needs."],
   };
@@ -141,7 +153,12 @@ function responseFormat(): JsonRecord {
     },
     required: ["start", "end", "baby", "mum", "dad", "rationale", "sourceIds"], additionalProperties: false,
   };
-  return { type: "json_schema", json_schema: { name: "family_sleep_plan", strict: true, schema: { type: "object", properties: { status: { type: "string", enum: ["ok"] }, summary: { type: "string" }, basis: { type: "string" }, schedule: { type: "array", minItems: 4, maxItems: 8, items: block }, adjustments: { type: "array", items: { type: "string" } }, limitations: { type: "array", items: { type: "string" } } }, required: ["status", "summary", "basis", "schedule", "adjustments", "limitations"], additionalProperties: false } } };
+  const tip = {
+    type: "object",
+    properties: { title: { type: "string" }, guidance: { type: "string" }, sourceIds: { type: "array", items: { type: "string" } } },
+    required: ["title", "guidance", "sourceIds"], additionalProperties: false,
+  };
+  return { type: "json_schema", json_schema: { name: "family_sleep_plan", strict: true, schema: { type: "object", properties: { status: { type: "string", enum: ["ok"] }, summary: { type: "string" }, basis: { type: "string" }, schedule: { type: "array", minItems: 4, maxItems: 8, items: block }, tips: { type: "array", minItems: 4, maxItems: 6, items: tip }, adjustments: { type: "array", items: { type: "string" } }, limitations: { type: "array", items: { type: "string" } } }, required: ["status", "summary", "basis", "schedule", "tips", "adjustments", "limitations"], additionalProperties: false } } };
 }
 
 function trustedUrl(value: unknown): string | null {
@@ -209,7 +226,7 @@ Deno.serve(async (request: Request) => {
     result.limitations = [...limitations, "Live AI wording was unavailable, so this cautious rota uses the recorded pattern and reviewed guidance only."];
     return json(200, { ...result, generation: { mode: "verified_fallback" }, retrieval: { mode: searched.length ? "live_search" : "reviewed_sources", liveSourceCount: searched.length }, sources: Object.fromEntries(evidence.map((source) => [source.id, { name: source.name, url: source.url }])) }, origin);
   };
-  const system = `Create a practical 24-hour rest and care rota for Mum, Dad and a newborn from de-identified aggregate logs and supplied evidence. This is a flexible parent handover plan, never a baby sleep-training or feeding schedule. Baby sleep and feeding remain responsive to cues and any individual clinical plan. Never advise delaying, skipping or withholding a feed or care. Never infer unlogged events. Describe quieter and busier recorded windows only, never guaranteed sleep. Protect rest for both parents. When breastfeeds predominate, Dad should handle bringing baby, changing and settling around feeds so Mum can return to sleep; never imply Dad can replace a breastfeed. Each block must say what Baby, Mum and Dad do. Include safer-sleep basics without claiming the logs prove safety. Do not diagnose or claim a pattern is normal, safe, healthy or adequate. Use only supplied source IDs and cite at least one source per block. Return only the requested JSON.`;
+  const system = `Create a practical 24-hour rest and care rota for Mum, Dad and a newborn from de-identified aggregate logs and supplied evidence. This is a flexible parent handover plan, never a baby sleep-training or feeding schedule. Baby sleep and feeding remain responsive to cues and any individual clinical plan. Never advise delaying, skipping or withholding a feed or care. Never infer unlogged events. Describe quieter and busier recorded windows only, never guaranteed sleep. Protect rest for both parents. When breastfeeds predominate, Dad should handle bringing baby, changing and settling around feeds so Mum can return to sleep; never imply Dad can replace a breastfeed. Each block must say what Baby, Mum and Dad do. Include safer-sleep basics without claiming the logs prove safety. Add 4 to 6 concise, practical tips that help this family carry out the generated rota: cover handover preparation, protected rest, low-stimulation night care and what to do if fatigue makes holding baby unsafe. Tips must be actionable and specific to using the rota, not generic filler. Do not diagnose or claim a pattern is normal, safe, healthy or adequate. Use only supplied source IDs and cite at least one source per block and per tip. Return only the requested JSON.`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 22_000);
   try {

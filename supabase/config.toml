@@ -2,3 +2,6 @@ project_id = "tiny-routines"
 
 [functions.evidence-insights]
 verify_jwt = false
+
+[functions.sleep-plan]
+verify_jwt = false

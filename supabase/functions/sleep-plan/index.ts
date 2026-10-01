@@ -148,6 +148,20 @@ function fallback(payload: JsonRecord): JsonRecord {
   };
 }
 
+function addScheduleGuide(result: JsonRecord): JsonRecord {
+  const schedule = Array.isArray(result.schedule) ? result.schedule : [];
+  const firstBlock = schedule.find(isRecord);
+  if (!firstBlock || typeof firstBlock.start !== "string" || typeof firstBlock.end !== "string") return result;
+  const sourceIds = Array.isArray(firstBlock.sourceIds) ? firstBlock.sourceIds.filter((id): id is string => typeof id === "string") : ["nhsSleep"];
+  const guide = {
+    title: `Start with the ${firstBlock.start}–${firstBlock.end} block`,
+    guidance: `Before ${firstBlock.start}, agree who is on duty and prepare the supplies for this block. Follow Baby's cues during it; when it ends at ${firstBlock.end}, hand over the care tasks and protected rest exactly as shown in the rota.`,
+    sourceIds: sourceIds.length ? sourceIds : ["nhsSleep"],
+  };
+  const tips = Array.isArray(result.tips) ? result.tips.filter(isRecord) : [];
+  return { ...result, tips: [guide, ...tips].slice(0, 6) };
+}
+
 function responseFormat(): JsonRecord {
   const block = {
     type: "object",
@@ -227,7 +241,7 @@ Deno.serve(async (request: Request) => {
   const evidence = [...Object.entries(SOURCES).map(([id, source]) => ({ id, ...source })), ...searched];
   const allowedSourceIds = new Set(evidence.map((source) => source.id));
   const fallbackResponse = () => {
-    const result = fallback(payload);
+    const result = addScheduleGuide(fallback(payload));
     const limitations = Array.isArray(result.limitations) ? result.limitations : [];
     result.limitations = [...limitations, "Live AI wording was unavailable, so this cautious rota uses the recorded pattern and reviewed guidance only."];
     return json(200, { ...result, generation: { mode: "verified_fallback" }, retrieval: { mode: searched.length ? "live_search" : "reviewed_sources", liveSourceCount: searched.length }, sources: Object.fromEntries(evidence.map((source) => [source.id, { name: source.name, url: source.url }])) }, origin);
@@ -244,7 +258,7 @@ Deno.serve(async (request: Request) => {
     const providerBody = JSON.parse(providerText);
     const content = providerBody?.choices?.[0]?.message?.content ?? providerBody?.output?.[0]?.content?.[0]?.text;
     const verified = validateResult(extractJson(content), allowedSourceIds);
-    const result = verified || fallback(payload);
+    const result = addScheduleGuide(verified || fallback(payload));
     return json(200, { ...result, generation: { mode: verified ? "verified_model" : "verified_fallback" }, retrieval: { mode: searched.length ? "live_search" : "reviewed_sources", liveSourceCount: searched.length }, sources: Object.fromEntries(evidence.map((source) => [source.id, { name: source.name, url: source.url }])) }, origin);
   } catch (error) {
     return fallbackResponse();

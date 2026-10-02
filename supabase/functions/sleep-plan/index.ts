@@ -65,11 +65,11 @@ function validPayload(value: unknown): value is JsonRecord {
   if (!isRecord(value) || !exactKeys(value, ["schemaVersion", "periodDays", "babyAgeDays", "completeness", "feeding", "hourly"])) return false;
   if (value.schemaVersion !== 1 || ![3, 7, 14].includes(Number(value.periodDays)) || !finiteIn(value.babyAgeDays, 0, 365, true)) return false;
   if (!isRecord(value.completeness) || !exactKeys(value.completeness, ["currentDayPartial", "loggedDays"]) || value.completeness.currentDayPartial !== true || !finiteIn(value.completeness.loggedDays, 0, Number(value.periodDays))) return false;
-  if (!isRecord(value.feeding) || !exactKeys(value.feeding, ["totalFeedLogs", "breastfeedLogs", "cupFeedLogs", "nightFeedLogs", "medianGapMinutes"])) return false;
+  if (!isRecord(value.feeding) || !exactKeys(value.feeding, ["totalFeedLogs", "breastfeedLogs", "cupFeedLogs", "bottleFeedLogs", "nightFeedLogs", "medianGapMinutes"])) return false;
   const feeding = value.feeding;
-  if (!["totalFeedLogs", "breastfeedLogs", "cupFeedLogs", "nightFeedLogs"].every((key) => finiteIn(feeding[key], 0, 500)) || !finiteIn(feeding.medianGapMinutes, 0, 720, true)) return false;
+  if (!["totalFeedLogs", "breastfeedLogs", "cupFeedLogs", "bottleFeedLogs", "nightFeedLogs"].every((key) => finiteIn(feeding[key], 0, 500)) || !finiteIn(feeding.medianGapMinutes, 0, 720, true)) return false;
   if (!Array.isArray(value.hourly) || value.hourly.length !== 24) return false;
-  return value.hourly.every((item, index) => isRecord(item) && exactKeys(item, ["hour", "feedLogs", "breastfeedLogs", "cupFeedLogs", "activeMinutes", "activeDays"]) && item.hour === index && finiteIn(item.feedLogs, 0, 100) && finiteIn(item.breastfeedLogs, 0, 100) && finiteIn(item.cupFeedLogs, 0, 100) && finiteIn(item.activeMinutes, 0, 60) && finiteIn(item.activeDays, 0, Number(value.periodDays)));
+  return value.hourly.every((item, index) => isRecord(item) && exactKeys(item, ["hour", "feedLogs", "breastfeedLogs", "cupFeedLogs", "bottleFeedLogs", "activeMinutes", "activeDays"]) && item.hour === index && finiteIn(item.feedLogs, 0, 100) && finiteIn(item.breastfeedLogs, 0, 100) && finiteIn(item.cupFeedLogs, 0, 100) && finiteIn(item.bottleFeedLogs, 0, 100) && finiteIn(item.activeMinutes, 0, 60) && finiteIn(item.activeDays, 0, Number(value.periodDays)));
 }
 
 function withinRateLimit(request: Request): boolean {
@@ -119,7 +119,7 @@ function fallback(payload: JsonRecord): JsonRecord {
   const feeding = isRecord(payload.feeding) ? payload.feeding : {};
   const peaks = peakHours(payload);
   const peakText = peaks.length ? peaks.map((hour) => `${String(hour).padStart(2, "0")}:00`).join(", ") : "no repeated time window yet";
-  const mostlyBreast = Number(feeding.breastfeedLogs || 0) > Number(feeding.cupFeedLogs || 0);
+  const mostlyBreast = Number(feeding.breastfeedLogs || 0) > Number(feeding.cupFeedLogs || 0) + Number(feeding.bottleFeedLogs || 0);
   const baby = "Follow sleep, hunger and comfort cues; use the clear, flat sleep space whenever baby sleeps.";
   const blocks = [
     ["20:00", "23:00", baby, "Protected first rest block after any needed feed.", "On call for changing, settling and household tasks."],

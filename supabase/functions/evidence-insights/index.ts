@@ -254,7 +254,7 @@ function verifiedFallback(payload: JsonRecord): JsonRecord {
   const comparison = isRecord(payload.comparison) ? payload.comparison : {};
   if (comparison.enabled && isRecord(comparison.feedsPerDay) && isRecord(comparison.measuredCupMlPerDay)) insights.push({
     title: "Observed period change",
-    finding: `Feed logs per complete day were ${Number(comparison.feedsPerDay.current || 0).toFixed(1)} in the selected period and ${Number(comparison.feedsPerDay.previous || 0).toFixed(1)} in the previous period. Measured cup milk per day was ${Math.round(Number(comparison.measuredCupMlPerDay.current || 0))} ml and ${Math.round(Number(comparison.measuredCupMlPerDay.previous || 0))} ml respectively.`,
+    finding: `Feed logs per complete day were ${Number(comparison.feedsPerDay.current || 0).toFixed(1)} in the selected period and ${Number(comparison.feedsPerDay.previous || 0).toFixed(1)} in the previous period. Measured milk per day was ${Math.round(Number(comparison.measuredCupMlPerDay.current || 0))} ml and ${Math.round(Number(comparison.measuredCupMlPerDay.previous || 0))} ml respectively.`,
     context: "This is a comparison of recorded values in equal-length periods. It does not establish intake, feeding adequacy or unlogged events.",
     sourceIds: ["nicePostnatal", "unicefResponsive"],
   });

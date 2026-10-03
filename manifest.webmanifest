@@ -1,0 +1,12 @@
+{
+  "name": "Tiny Routines",
+  "short_name": "Tiny Routines",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f1",
+  "theme_color": "#fffaf5",
+  "description": "A shared newborn routine log for feeds, sleep and diapers.",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

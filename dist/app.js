@@ -287,6 +287,8 @@ function localTwoParentSleepPlan(payload){let feeding=payload.feeding||{},logged
 const originalGenerateSleepPlanForFallback=generateSleepPlan;
 generateSleepPlan=async()=>{await originalGenerateSleepPlanForFallback();if(sleepPlanResult?.error){sleepPlanResult=localTwoParentSleepPlan(sleepPlanPayload());renderSleepPlan();toast('AI unavailable · local two-parent rota shown')}};
 $('#generateSleepPlan').onclick=generateSleepPlan;
+const originalRenderSleepPlanTimeline=renderSleepPlan;
+renderSleepPlan=()=>{originalRenderSleepPlanTimeline();let result=$('#sleepPlanResult'),blocks=result?.querySelector('.sleep-plan-blocks');if(result&&!result.hidden&&blocks&&!blocks.querySelector('.sleep-plan-timeline-heading')){blocks.insertAdjacentHTML('afterbegin','<h3 class="sleep-plan-timeline-heading">Timeline and rationale</h3>');blocks.querySelectorAll('article small').forEach(item=>{item.textContent='Why this block: '+item.textContent})}};
 const originalRenderSleepPlanPattern=renderSleepPlanPattern;
 renderSleepPlanPattern=payload=>{originalRenderSleepPlanPattern(payload);let kpis=$('#sleepPlanPattern .sleep-plan-kpis');if(kpis&&!kpis.querySelector('.bottle-feed-kpi'))kpis.insertAdjacentHTML('beforeend',`<span class="bottle-feed-kpi"><b>${payload.feeding.bottleFeedLogs||0}</b> bottle breast milk feeds</span>`)};
 const originalAnalysisComparisonHtml=analysisComparisonHtml;

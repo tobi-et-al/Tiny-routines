@@ -439,7 +439,7 @@ Deno.serve(async (request: Request) => {
     const groq = new URL(apiUrl).hostname === "api.groq.com";
     const providerOptions = groq
       ? { max_completion_tokens: 3_500, reasoning_effort: "low", reasoning_format: "hidden", response_format: modelResponseFormat() }
-      : { max_tokens: 900, response_format: { type: "json_object" } };
+      : { max_tokens: 900 };
     const providerResponse = await fetch(apiUrl, {
       method: "POST",
       headers: { "authorization": `Bearer ${apiKey}`, "content-type": "application/json" },

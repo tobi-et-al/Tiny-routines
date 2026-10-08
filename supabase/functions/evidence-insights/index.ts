@@ -440,13 +440,18 @@ Deno.serve(async (request: Request) => {
     const providerOptions = groq
       ? { max_completion_tokens: 3_500, reasoning_effort: "low", reasoning_format: "hidden", response_format: modelResponseFormat() }
       : { max_tokens: 900 };
-    const providerResponse = await fetch(apiUrl, {
+    const messages = [{ role: "system", content: system }, { role: "user", content: JSON.stringify({ aggregates: payload, evidence }) }];
+    let providerResponse = await fetch(apiUrl, {
       method: "POST",
       headers: { "authorization": `Bearer ${apiKey}`, "content-type": "application/json" },
-      body: JSON.stringify({ model, temperature: 0, ...providerOptions, messages: [{ role: "system", content: system }, { role: "user", content: JSON.stringify({ aggregates: payload, evidence }) }] }),
+      body: JSON.stringify({ model, temperature: 0, ...providerOptions, messages }),
       signal: controller.signal,
     });
-    const providerText = await providerResponse.text();
+    let providerText = await providerResponse.text();
+    if (!providerResponse.ok && providerResponse.status === 400) {
+      providerResponse = await fetch(apiUrl, { method: "POST", headers: { "authorization": `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ model, temperature: 0, max_tokens: 1_200, messages }), signal: controller.signal });
+      providerText = await providerResponse.text();
+    }
     if (!providerResponse.ok) {
       let providerCode = "unknown";
       try {

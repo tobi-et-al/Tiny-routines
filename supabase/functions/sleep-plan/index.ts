@@ -252,8 +252,13 @@ Deno.serve(async (request: Request) => {
   try {
     const groq = new URL(apiUrl).hostname === "api.groq.com";
     const providerOptions = groq ? { max_completion_tokens: 4_000, reasoning_effort: "low", reasoning_format: "hidden", response_format: responseFormat() } : { max_tokens: 1_500 };
-    const response = await fetch(apiUrl, { method: "POST", headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ model, temperature: 0.1, ...providerOptions, messages: [{ role: "system", content: system }, { role: "user", content: JSON.stringify({ aggregates: payload, evidence }) }] }), signal: controller.signal });
-    const providerText = await response.text();
+    const messages = [{ role: "system", content: system }, { role: "user", content: JSON.stringify({ aggregates: payload, evidence }) }];
+    let response = await fetch(apiUrl, { method: "POST", headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ model, temperature: 0.1, ...providerOptions, messages }), signal: controller.signal });
+    let providerText = await response.text();
+    if (!response.ok && response.status === 400) {
+      response = await fetch(apiUrl, { method: "POST", headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ model, temperature: 0.1, max_tokens: 1_500, messages }), signal: controller.signal });
+      providerText = await response.text();
+    }
     if (!response.ok) return fallbackResponse();
     const providerBody = JSON.parse(providerText);
     const content = providerBody?.choices?.[0]?.message?.content ?? providerBody?.output?.[0]?.content?.[0]?.text;
